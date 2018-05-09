@@ -3,15 +3,24 @@
 # Ce fichier liste les changements apportés à l'application
 # Modifiez le quand vous ajoutez quelque-chose
 
+
 # Liens des overleafs
+
 Cahier des charges :  https://www.overleaf.com/14941843qjwkbwdxwcjs
+
 Rapport :             https://www.overleaf.com/14940005vncwktrdjpwn
+
 Présentation :        https://www.overleaf.com/16027254zkkgffdjzttd
 
+
 # Rappel pour faire fonctionner l'application :
+
 Dans un même répertoire, mettez le fichier Application.py, et des dossiers nommés Données, Modules et Images
+
 Le dossier Données doit contenir le fichier .json
+
 Le dossier Modules doit contenir tous les autres programmes .py
+
 Le dossier Images doit contenir une image logo.png
 
 
