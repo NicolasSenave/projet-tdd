@@ -33,8 +33,11 @@ class Population :
         return self.vins[i]
 
     def appliquer_criteres(self) :
+        
+        self.vins = deepcopy(base_vins.vins)
+        self.nb_vins = len(self.vins)
 
-        for variable in liste_variables :
+        for variable in Selection.liste_variables :
             
             if variable.type_variable == 'quanti' :
                 k = 0

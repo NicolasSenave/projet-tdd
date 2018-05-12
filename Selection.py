@@ -11,7 +11,7 @@ Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 from tkinter import *
 
 from Vins import *
-from copy import deepcopy
+from copy import copy,deepcopy
 
 
 class Variable :
@@ -100,7 +100,7 @@ class Variable :
 liste_variables = [Variable(nom) for nom in liste_noms_variables]
 
 
-class AffichageVar :
+class AffichageVariable :
     """
     Contient un canvas définit dans frame_selection 
     et des labels et lignes de saisie définis dans ce canvas 
@@ -200,21 +200,14 @@ class AffichageVar :
         texte_critere += "[ %s , %s ]" %(borne_inf,borne_sup)
         self.texte_critere.set(texte_critere)
         self.label_critere.update()
-        
 
 
 class Selection :
     
-    # Variables statiques utilisée dans le programme corps
+    liste_variables = deepcopy(liste_variables)
     
-    fonction_sortie = None
-    
-    # Variables et méthodes statiques utilisées dans le constructeur :
-    
-    texte_selection = "Cliquez avec la souris ou utilisez les flèches du clavier "
-    texte_selection += "pour voir les critères appliqués sur les variables.\n"
-    texte_selection += "Double-cliquez ou appuyer sur Entrer pour modifier les "
-    texte_selection += "critères sur la variable choisie.\n\n"
+    fonction_valider = None
+    fonction_retour = None
     
     def labels_variables(can) :
         """
@@ -225,7 +218,7 @@ class Selection :
         dont les clés sont les noms des variables
         """
         res = {}
-        for variable in liste_variables :
+        for variable in Selection.liste_variables :
             label = Label(can, text=variable.nom_affiche, padx=50, font='Consolas 12', background='ivory')
             label.pack()
             res[variable.nom] = label
@@ -234,21 +227,27 @@ class Selection :
     def objets_criteres(can) :
         """
         Méthode statique de la classe Selection
-        Crée les AffichageVar permettant d'afficher et de modifier les critères 
+        Crée les AffichageVariable permettant d'afficher et de modifier les critères 
         appliqués sur les variables 
         et affiche ces objets dans le canvas en entrée
         Renvoie les objets créés dans un dictionnaire 
         dont les clés sont les noms des variables
         """
         res = {}
-        for variable in liste_variables :
-            objet = AffichageVar(variable,can)
+        for variable in Selection.liste_variables :
+            objet = AffichageVariable(variable,can)
             res[variable.nom] = objet
         return res
     
     def __init__(self,fen) :
         #
-        self.etiquette = Label(fen, text=Selection.texte_selection,font='Arial 12',bg='ivory',justify=LEFT)
+        texte_indication = "Cliquez avec la souris ou utilisez les flèches du clavier "
+        texte_indication += "pour voir les critères appliqués sur les variables.\n\n"
+        self.etiquette = Label(fen, text=texte_indication,font='Arial 12',bg='ivory',justify=LEFT)
+        # Problème avec ça : actuellement les critères s'appliquent une fois la sélection terminée
+        # self.texte_nb_vins = StringVar()
+        # self.texte_nb_vins.actualiser_nb_vins()
+        # self.label_nb_vins = Label(fen, textvariable=texte_nb_vins,font='Arial 12',bg='ivory',justify=LEFT)
         #
         self.canvas_variables = Canvas(fen, background='ivory')
         self.variables = Selection.labels_variables(self.canvas_variables)
@@ -261,6 +260,12 @@ class Selection :
         self.criteres = Selection.objets_criteres(self.canvas_criteres)
         #
         self.bouton_valider = Button(fen, text="Valider les critères",font='Arial 12',bg='lightgreen',command=self.fin)
+        self.bouton_retour = Button(fen, text="Retour à l'écran d'accueil",font='Arial 12',command=self.retour)
+    
+    # cf. init : Problème avec ça : actuellement les critères s'appliquent une fois la sélection terminée
+    # def actualiser_nb_vins(self) :
+    #     msg = "La population sélectionnée contient actuellement %s vins.\n\n" %(self.population.nb_vins)
+    #     self.texte_nb_vins.set(msg)
     
     def choisir_variable(self,evenement) :
         
@@ -285,19 +290,19 @@ class Selection :
             self.afficher_criteres_variable()
         
         elif touche == "Return" :
-            Selection.fonction_sortie()
+            self.fin()
     
     def afficher_criteres_variable(self) :
-        self.variable_affichee = liste_variables[self.curseur].copie()
+        self.variable_affichee = Selection.liste_variables[self.curseur].copie()
         #
-        for variable in liste_variables :
+        for variable in Selection.liste_variables :
             if variable != self.variable_affichee :
                 self.variables[variable.nom].configure(background='ivory')
                 self.criteres[variable.nom].cacher()
         #
         self.variables[self.variable_affichee.nom].configure(background='lightblue')
         self.criteres[self.variable_affichee.nom].afficher()
-        self.canvas_criteres.pack(side=TOP)
+        self.canvas_criteres.pack()#side=TOP
     
     def appliquer_criteres_quali(self) :
         """
@@ -310,6 +315,7 @@ class Selection :
         for nom_variable in self.criteres :
             obj = self.criteres[nom_variable]
             if obj.variable.type_variable == 'quali' :
+                obj.variable.critere_modalites = copy(obj.variable.modalites)
                 for mod in obj.vars_modalites :
                     var = obj.vars_modalites[mod]
                     if var.get() == 0 :
@@ -320,7 +326,18 @@ class Selection :
         self.canvas_variables.pack(side=LEFT)
         self.canvas_variables.focus_set()
         self.canvas_criteres.pack(side=TOP)
+        self.bouton_retour.pack(side=BOTTOM)
         self.bouton_valider.pack(side=BOTTOM)
+    
+    def retour(self) :
+        #
+        self.etiquette.forget()
+        self.canvas_variables.forget()
+        self.canvas_criteres.forget()
+        self.bouton_valider.forget()
+        self.bouton_retour.forget()
+        #
+        Selection.fonction_retour()
     
     def fin(self) :
         #
@@ -330,4 +347,6 @@ class Selection :
         self.canvas_variables.forget()
         self.canvas_criteres.forget()
         self.bouton_valider.forget()
-        Selection.fonction_sortie()
+        self.bouton_retour.forget()
+        #
+        Selection.fonction_valider()
