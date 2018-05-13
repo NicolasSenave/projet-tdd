@@ -12,15 +12,12 @@ Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 
 
 ## Définition des répertoires
-
 import os
 
 #emplacement = os.getcwd()
 emplacement = 'D:\\Documents\\Application'
 emplacement_modules = emplacement + '\\Modules'
-
 emplacement_donnees = emplacement + '\\Données'
-
 emplacement_images = emplacement + '\\Images'
 
 
@@ -282,6 +279,7 @@ class Application(Tk) :
         self.reinit_ecran()
         # Gestion de la barre de menu
         self.disable_all()
+        self.menu_exporter.entryconfigure(0, state=NORMAL)
         # Lancer le menu de sélection des variables à afficher
         self.ecran_parametres.__main__()
     
@@ -338,8 +336,31 @@ class Application(Tk) :
         """
         Fonction "Exporter la population sélectionnée" du menu.
         """
-        pass
-    
+        # L'utilisateur définit l'emplacment
+        emplacement_export = askdirectory(title="Exporter la population dans une feuille de calcul .xls")
+        
+        # Initialisation du classeur
+        classeur = Workbook()
+        feuille = classeur.add_sheet("Vins")
+        
+        # Ajout du nom des variables
+        feuille.write(0,0,'Id')
+        for j in range(0,nb_variables) :
+            nom_variable = liste_noms_affiches_variables[j]
+            feuille.write(0,j+1,nom_variable)
+        
+        # Ajout des valeurs
+        for i in range(0,self.population.nb_vins) :
+            vin = self.population[i]
+            feuille.write(i+1,0,vin.id)
+            for j in range(0,nb_variables) :
+                nom_variable = liste_noms_variables[j]
+                valeur = getattr(vin, nom_variable)
+                feuille.write(i+1,j+1,valeur)
+        
+        # Enregistrement du fichier
+        classeur.save(emplacement_export + '/Vins.xls')
+
 
 ## Mainloop
 
