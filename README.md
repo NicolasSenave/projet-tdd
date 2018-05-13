@@ -26,6 +26,13 @@ Le dossier Images doit contenir une image logo.png
 Vous pouvez exécuter directement le fichier Application.py avec python ou pythonw, sans passer par un éditeur de type Pyzo ou Spyder pour lancer l'application.
 
 
+# 13/05 18:00 Nico
+
+Normalement il n'y a plus aucun bugs. L'affichage a été légèrement amélioré (il y avait un léger problème sur la dernière page).
+
+La possibilité d'exporter les vins choisis a été ajoutée.
+
+
 # 13/05 02:30 Nico
 
 Quasiment pas de changement à l'usage. J'ai mis tout le programme principal en classe (plus propre et plus pratique), et j'ai ajouté de la doc string partout. J'ai aussi enlevé quelques bouts inutiles par ci pa là. Maintentnant le code est super clean.
