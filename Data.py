@@ -18,6 +18,8 @@ import json
 
 from tkinter import *
 from tkinter.messagebox import *
+from tkinter.filedialog import *
+from xlwt import Workbook
 
 from copy import copy,deepcopy
 
@@ -83,3 +85,17 @@ def creer_dico(cles,valeurs) :
 dico_noms_affiches = creer_dico(liste_noms_variables,liste_noms_affiches_variables)
 
 nb_variables = len(liste_noms_variables)
+
+liste_noms_export = ['Quality',
+                    'Type',
+                    'Alcohol',
+                    'Density',
+                    'pH',
+                    'Sulfates',
+                    'Chlorides',
+                    'Residual sugar',
+                    'Citric acid',
+                    'Fixed acidity',
+                    'Volatile acidity',
+                    'Free sulfure dioxyd',
+                    'Total sulfure dioxyde']

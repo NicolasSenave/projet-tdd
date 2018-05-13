@@ -130,7 +130,7 @@ class AffichagePopulation :
             #
             self.texte_page = StringVar()
             self.actualiser_texte_page()
-            self.label_pages = Label(fen,textvariable=self.texte_page)
+            self.label_pages = Label(fen,textvariable=self.texte_page,background='ivory')
             #
             self.bouton_page_suiv = Button(fen,text="Page suivante",font='Arial 12',command=self.page_suivante)
             self.bouton_page_prec = Button(fen,text="Page précédente",font='Arial 12',command=self.page_precedente)
@@ -146,7 +146,7 @@ class AffichagePopulation :
         self.barre_h.grid(row=1,column=0,sticky=E+W)
         
         # Création du canevas qui contient le tableau (frame) qui contient les cellules (labels)
-        self.canvas = Canvas(self.cadre, bg='ivory', yscrollcommand=self.barre_v.set,xscrollcommand=self.barre_h.set)#♥width=600,height=400,
+        self.canvas = Canvas(self.cadre, bg='ivory', yscrollcommand=self.barre_v.set,xscrollcommand=self.barre_h.set)
         
         # Fait que les barres de défilement s'ajustent à la taille de la fenêtre
         self.cadre.grid_columnconfigure(0,weight=1)
@@ -217,9 +217,15 @@ class AffichagePopulation :
             nom_variable = self.donnees[0][j]
             cellule = Label(self.tableau,text=nom_variable,background='ivory')
             cellule.grid(row=0,column=j,sticky=NW)
-        # Ajout des valeurs
+        # Définition de la plage des indices de la page
         p_debut = self.page*50 + 1
-        p_fin = min( (self.page+1)*50 + 1, self.nb_lignes + 1)
+        if self.page < self.nb_pages or self.nb_lignes%50 == 0 :
+            p_fin = (self.page+1)*50 + 1
+            p_fin_mod = 50 + 1
+        else :
+            p_fin = self.nb_lignes + 1
+            p_fin_mod = (self.nb_lignes + 1)%50
+        # Ajout des valeurs
         for i in range(p_debut, p_fin) :
             for j in range(0,self.nb_colonnes + 1) :
                 valeur = self.donnees[i][j]
@@ -227,7 +233,12 @@ class AffichagePopulation :
                 if i < p_fin - 1 :
                     cellule.grid(row=i%50,column=j,sticky=NW)
                 else :
-                    cellule.grid(row=i,column=j,sticky=NW)
+                    cellule.grid(row=p_fin_mod,column=j,sticky=NW)
+        # Ajout de lignes vide à la page si elle est imcomplète
+        for i in range(p_fin_mod + 1, 51 + 1) :
+            for j in range(0,self.nb_colonnes + 1) :
+                cellule = Label(self.tableau,text='          ',background='ivory') 
+                cellule.grid(row=i,column=j,sticky=NW)
     
     def page_suivante(self) :
         """
