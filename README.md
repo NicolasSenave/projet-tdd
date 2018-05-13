@@ -26,6 +26,13 @@ Le dossier Images doit contenir une image logo.png
 Vous pouvez exécuter directement le fichier Application.py avec python ou pythonw, sans passer par un éditeur de type Pyzo ou Spyder pour lancer l'application.
 
 
+# 13/05 02:30 Nico
+
+Quasiment pas de changement à l'usage. J'ai mis tout le programme principal en classe (plus propre et plus pratique), et j'ai ajouté de la doc string partout. J'ai aussi enlevé quelques bouts inutiles par ci pa là. Maintentnant le code est super clean.
+
+Les autres fonctionnalités ne sont pas encore intégrées, mais il n'y a plus de bug si on essaye de les lancer via le menu (il se passe juste rien pour l'instant).
+
+
 # 12/05 15:30 Nico
 
 Maintenant l'application a son logo.
