@@ -1,33 +1,35 @@
+# -*- coding: utf-8 -*-
 """
 Application traitement de données
 Module Data
 
-Ce programme sert à importer et à accéder aux informations de la base de 
-donnée. Il permet également quelques traitements élémentaires sur ces 
-informations.
+Ce programme sert à importer les informations de la base de donnée. 
+Il importe également les modules python nécessaires aux autres programmes.
 
 @Auteurs :
 Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 """
 
+
 import json
+
+
+## Modules nécessaires pour d'autres programmes fils
+
+from tkinter import *
+
+from copy import copy,deepcopy
+
+
+## Définition de répertoire des données
+
 import os
 
+emplacement_modules = os.getcwd()
 
-## Définition du répoertoire contenant les données
+emplacement_donnees = emplacement_modules[ : -len('Modules')] + 'Données\\'
 
-emplacement = os.getcwd()
-emplacement = emplacement[ : -len('Modules')]
-emplacement_donnees = emplacement + 'Données\\'
-
-
-## Choix de la base de données
-
-#fichiers = os.listdir(emplacement)
-# Insérer un traitement : si il y a plusieurs fichier alors sélection fichier
-
-
-## Importation des données choisies
+## Importation des données
 
 with open(emplacement_donnees + 'vinData.json') as fichier :
     base_vins_dicos = json.load(fichier)

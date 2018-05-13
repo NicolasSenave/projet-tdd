@@ -1,23 +1,23 @@
+# -*- coding: utf-8 -*-
 """
 Application traitement de données
-Module Data
+Module Selection
 
-Ce programme gère le menu de séléction des critères.
+Ce programme définit la classe Variable et génère une liste des variables.
+Les objets de type Variable contiennent notamment les critères séléctionnés.
+Ce programme gère le menu de séléction des critères via la classe Selection.
 
 @Auteurs :
 Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 """
 
-from tkinter import *
 
 from Vins import *
-from copy import copy,deepcopy
 
 
 class Variable :
     """
-    Cette classe définit un objet abstrait de variable, 
-    caractérisée par son nom.
+    Un objet de type Variable est caractérisé par son nom.
     La variable peut être qualitative ou quantitative.
     L'objet contient des informations sur la variable,
     ainsi que les critères appliqués sur cette variable.
@@ -25,9 +25,9 @@ class Variable :
     
     def type_variable(nom_variable) :
         """
-        Méthode statique de la classe Variable
+        Méthode statique de la classe Variable.
         Renvoie 'quanti' si la variable est quantitative
-        renvoie 'quali' si la variable est qualitaive
+        renvoie 'quali' si la variable est qualitaive.
         """
         if type( getattr(base_vins_objets[0],nom_variable) ) == str :
             return 'quali'
@@ -36,9 +36,9 @@ class Variable :
     
     def valeur_min(nom_variable) :
         """
-        Méthode statique de la classe Variable
-        Entrée : le nom d'une variable quantitative (str)
-        Renvoie la valeur la plus faible sur la variable donnée
+        Méthode statique de la classe Variable.
+        Entrée : le nom d'une variable quantitative (str).
+        Renvoie la valeur la plus faible sur la variable donnée.
         """
         val_min = getattr(base_vins_objets[0],nom_variable)
         for vin in base_vins_objets :
@@ -49,9 +49,9 @@ class Variable :
     
     def valeur_max(nom_variable) :
         """
-        Méthode statique de la classe Variable
-        Entrée : le nom d'une variable quantitative (str)
-        Renvoie la valeur la plus faible sur la variable donnée
+        Méthode statique de la classe Variable.
+        Entrée : le nom d'une variable quantitative (str).
+        Renvoie la valeur la plus faible sur la variable donnée.
         """
         val_max = getattr(base_vins_objets[0],nom_variable)
         for vin in base_vins_objets :
@@ -61,6 +61,11 @@ class Variable :
         return val_max
     
     def liste_modalites(nom_variable) :
+        """
+        Méthode statique de la classe Variable.
+        Entrée : le nom d'une variable quantitative (str).
+        Renvoie la liste (list) des modalités (str) de cette variable.
+        """
         res = []
         for vin in base_vins_objets :
             mod = getattr(vin,nom_variable)
@@ -102,15 +107,8 @@ liste_variables = [Variable(nom) for nom in liste_noms_variables]
 
 class AffichageVariable :
     """
-    Contient un canvas définit dans frame_selection 
-    et des labels et lignes de saisie définis dans ce canvas 
-    permettant d'afficher et de modifier les critères appliqués sur une 
-    variable quantitative.
-    
-    Contient un canvas définit dans frame_selection 
-    et des labels et lignes de saisie définis dans ce canvas 
-    permettant d'afficher et de modifier les critères appliqués sur une 
-    variable qualitative.
+    Les objets de type AffichageVariables permet de visualiser et de modifier 
+    les critères appliqués à une variable.
     """
     
     def __init__(self,variable,canvas) :
@@ -148,12 +146,14 @@ class AffichageVariable :
             for mod in variable.modalites :
                 var = IntVar()
                 case = Checkbutton(self.cadre, text=mod, variable=var, background='ivory')
-                # Par défaut la modalité est sélectionnée
-                case.select()
+                case.select() # Par défaut la modalité est sélectionnée
                 self.cases_modalites.append( case )
                 self.vars_modalites[mod] = var
     
     def afficher(self) :
+        """
+        Affiche l'objet.
+        """
         if self.variable.type_variable == 'quanti' :
             self.label.pack()
             self.label_critere.pack()
@@ -167,6 +167,9 @@ class AffichageVariable :
                 case.pack()
     
     def cacher(self) :
+        """
+        Désaffiche l'objet.
+        """
         if self.variable.type_variable == 'quanti' :
             self.label.forget()
             self.label_critere.forget()
@@ -180,6 +183,10 @@ class AffichageVariable :
                 case.forget()
     
     def appliquer_critere_min(self,evenement=None) :
+        """
+        Pour une variable quantitative, met à jour le critère de sélection 
+        via l'input de l'utilisateur.
+        """
         self.variable.critere_min = float(self.entree_min.get())
         # Ici insérer un pop_up d'erreur
         # si l'utilisateur rentre autre chose qu'un nombre
@@ -188,12 +195,19 @@ class AffichageVariable :
         self.actualiser_critere_quanti()
     
     def appliquer_critere_max(self,evenement=None) :
+        """
+        Pour une variable quantitative, met à jour le critère de sélection 
+        via l'input de l'utilisateur.
+        """
         self.variable.critere_max = float(self.entree_max.get())
         # idem cf appliquer_critere_min
         self.entree_max.delete(0,END)
         self.actualiser_critere_quanti()
     
     def actualiser_critere_quanti(self,evenement=None) :
+        """
+        Pour une variable quantitative, affiche les critères sélectionnés.
+        """
         borne_inf = self.variable.critere_min
         borne_sup = self.variable.critere_max
         texte_critere = "Intervalle des valeurs retenues pour cette variable :\n"
@@ -203,6 +217,9 @@ class AffichageVariable :
 
 
 class Selection :
+    """
+    Cette classe constitue le menu de sélection des critères.
+    """
     
     liste_variables = deepcopy(liste_variables)
     
@@ -211,11 +228,11 @@ class Selection :
     
     def labels_variables(can) :
         """
-        Méthode statique de la classe Selection
+        Méthode statique de la classe Selection.
         Crée les labels de la liste des variables du menu de sélection
-        et pack ces labels dans le canvas en entrée
+        et pack ces labels dans le canvas en entrée.
         Renvoie les labels créés dans un dictionnaire 
-        dont les clés sont les noms des variables
+        dont les clés sont les noms des variables.
         """
         res = {}
         for variable in Selection.liste_variables :
@@ -226,12 +243,12 @@ class Selection :
     
     def objets_criteres(can) :
         """
-        Méthode statique de la classe Selection
+        Méthode statique de la classe Selection.
         Crée les AffichageVariable permettant d'afficher et de modifier les critères 
-        appliqués sur les variables 
-        et affiche ces objets dans le canvas en entrée
+        appliqués sur les variables,
+        et affiche ces objets dans le canvas en entrée.
         Renvoie les objets créés dans un dictionnaire 
-        dont les clés sont les noms des variables
+        dont les clés sont les noms des variables.
         """
         res = {}
         for variable in Selection.liste_variables :
@@ -268,6 +285,10 @@ class Selection :
     #     self.texte_nb_vins.set(msg)
     
     def choisir_variable(self,evenement) :
+        """
+        Met à jour le curseur suite à un input de l'utilisateur, 
+        puis lance afficher_criteres_variables.
+        """
         
         touche = evenement.keysym
         
@@ -288,11 +309,12 @@ class Selection :
             elif self.curseur == 0 :
                 self.curseur = nb_variables - 1
             self.afficher_criteres_variable()
-        
-        elif touche == "Return" :
-            self.fin()
     
     def afficher_criteres_variable(self) :
+        """
+        Met à jour l'affichage pour afficher les critères de la variable 
+        sur laquelle se trouve le curseur.
+        """
         self.variable_affichee = Selection.liste_variables[self.curseur].copie()
         #
         for variable in Selection.liste_variables :
@@ -306,9 +328,9 @@ class Selection :
     
     def appliquer_criteres_quali(self) :
         """
-        Cette méthode est appelée dans la méthode fin de cette classe,
-        elle modifie l'attribut critere_modalites de chaque Variable 
-        de liste_variables
+        Cette méthode est appelée dans la méthode fin de cette classe.
+        Elle modifie l'attribut critere_modalites de chaque Variable 
+        de liste_variables.
         Si la case correspondant à la modalité est cochée, elle est conservée 
         dans critere_modalites, sinon elle est retirée.
         """
@@ -330,6 +352,10 @@ class Selection :
         self.bouton_valider.pack(side=BOTTOM)
     
     def retour(self) :
+        """
+        Désaffiche l'écran de sélection des critères,
+        et renvoie au menu principal de l'application.
+        """
         #
         self.etiquette.forget()
         self.canvas_variables.forget()
@@ -340,6 +366,12 @@ class Selection :
         Selection.fonction_retour()
     
     def fin(self) :
+        """
+        Applique les critères sur les variables qualitatives (les critères sur 
+        les variables quantitatives sont actualisés directement après les inputs),
+        puis désaffiche l'écran de sélection des critères,
+        et renvoie au menu de sélection des opérations.
+        """
         #
         self.appliquer_criteres_quali()
         #

@@ -1,26 +1,30 @@
+# -*- coding: utf-8 -*-
 """
 Application traitement de données
 
-Programme principal
-Ce script lance l'application et assure la gestion des menus, 
+Programme principal.
+Lance l'application et assure la gestion des menus, 
 qui permettent à l'utilisateur de naviguer dans les différentes fonctionnalités.
 
 @Auteurs :
 Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 """
 
-#Note gobale :
-# On pourrait remplacer les forget par des destroy dans les méthodes fin des modules
-# pour gagner un peu d'espace en mémoire et rendre l'application légèrement plus rapide
 
-
-## Import des modules
+## Définition des répertoires
 
 import os
 
 #emplacement = os.getcwd()
 emplacement = 'D:\\Documents\\Application'
 emplacement_modules = emplacement + '\\Modules'
+
+emplacement_donnees = emplacement + '\\Données'
+
+emplacement_images = emplacement + '\\Images'
+
+
+## Import des modules
 os.chdir(emplacement_modules)
 
 from Affichage import *
@@ -33,346 +37,312 @@ from Clustering import *
 from Exports import *
 
 
-## Définition de la fenetre principale
+## Application
 
-from tkinter import *
-
-fen = Tk()
-fen.title("Application")
-fen.geometry("800x550+100+70")
-fen.configure(bg='ivory')
-
-emplacement_images = emplacement + '\\Images'
-os.chdir(emplacement_images)
-logo = PhotoImage(file='logo.png')
-fen.call('wm', 'iconphoto', fen._w, logo)
-
-
-## Nettoyer la fenêtre
-
-def reinit_ecran() :
-    """
-    Désaffiche tous les objets Tkinter pour préparer l'affichage d'une 
-    fonctionnalité
-    """
-    #
-    label_titre.forget()
-    label_noms.forget()
-    #
-    label_population.forget()
-    label_indication.forget()
-    bouton_retour.forget()
-# NB : en vrai désafficher tous les objets de l'écran à n'importe quel moment 
-# c'est pas simplbe du tout
-# On va peut être laisser tomber cette fonction en la transformant en 
-# menu_pricipal_fin
-# et n'afficher la barre de menus qu'au menu principal ;
-# on utilisera des boutons ou autre dans le reste de l'application
-
-
-## Menu principal
-
-texte_titre = "Projet traitement de données\nEnsai - 1ère année"
-label_titre = Label(fen, text=texte_titre, background='lightblue',font='Arial 24')
-
-texte_noms = "Tanguy Barthélémy, Killian Poullain, Nicolas Sénave"
-label_noms = Label(fen, text=texte_noms, background='lightblue',font='Arial 18')
-
-def menu_principal() :
-    """
-    Affiche le menu principal
-    """
-    global population
-    #
-    reinit_ecran()
-    #
-    population = deepcopy(base_vins)
-    #
-    menu_select.entryconfigure(0, state=NORMAL)
-    menu_select.entryconfigure(2, state=NORMAL)
-    menu_select.entryconfigure(3, state=DISABLED)
-    disable_traitements()
-    menu_affichage.entryconfigure(0, state=DISABLED)
-    menu_affichage.entryconfigure(2, state=DISABLED)
-    menu_exporter.entryconfigure(0, state=DISABLED)
-    #
-    label_titre.pack(expand=True,fill=BOTH)
-    label_noms.pack(expand=True,fill=BOTH)
-
-
-
-## Menu intermédiaire
-
-texte_population = StringVar()
-label_population = Label(fen,textvariable=texte_population, background='ivory',font='Arial 12')
-
-texte_indication = "Utilisez le menu pour sélectionner l'opération souhaitée.\n\n"
-texte_indication += "Si vous souhaitez ensuite effectuer une autre action, utilisez le bouton permettant de revenir sur ce menu."
-
-label_indication = Label(fen,text=texte_indication, background='ivory',font='Arial 10')
-
-bouton_retour = Button(fen, text="Retour à l'écran d'accueil",font='Arial 12',command=menu_principal)
-
-def menu_intermediaire() :
-    global population
-    #
-    reinit_ecran()
-    #
-    menu_select.entryconfigure(0, state=DISABLED)
-    menu_select.entryconfigure(2, state=DISABLED)
-    menu_select.entryconfigure(3, state=NORMAL)
-    enable_traitements()
-    menu_affichage.entryconfigure(0, state=NORMAL)
-    menu_affichage.entryconfigure(2, state=DISABLED)
-    menu_exporter.entryconfigure(0, state=NORMAL)
-    #
-    resume = "La population séléctionnée contient %s vins." %(population.nb_vins)
-    texte_population.set(resume)
-    label_population.pack(expand=True,fill=BOTH)
-    label_indication.pack(expand=True,fill=BOTH)
-    bouton_retour.pack(side=BOTTOM)
+class Application(Tk) :
     
-
-
-## Ecran de chargement
-
-etiquette_chargement = Label(fen,text="Chargement en cours...",background='ivory',font='Arial 10')
-
-def ecran_chargement() :
-    etiquette_chargement.pack(expand=True,fill=BOTH)
-
-def fin_chargement() :
-    etiquette_chargement.forget()
-
-
-## Fonctionnalité : Séléction des critères
-
-def base_complete() :
-    global ecran_selection
-    #
-    Selection.fonction_valider = selection_fin
-    Selection.fonction_retour = menu_principal
-    ecran_selection = Selection(fen)
-    #
-    menu_intermediaire()
-
-def selection() :
-    """
-    Fonction "Séléctionner une sous-population" du menu
-    """
-    global ecran_selection
-    #
-    reinit_ecran()
-    #
-    disable_all()
-    # On réinitialise les variables (qui contiennent les critères)
-    Selection.liste_variables = deepcopy(liste_variables)
-    #
-    Selection.fonction_valider = selection_fin
-    Selection.fonction_retour = menu_principal
-    ecran_selection = Selection(fen)
-    ecran_selection.__main__()
-
-def modif_criteres() :
-    """
-    Si des critères on déjà été validés,
-    permet de revenir à l'écran de sélection des critères
-    Sinon, affiche un popup d'erreur
-    """
-    global ecran_selection
-    #
-    reinit_ecran()
-    #
-    disable_all()
-    #
-    ecran_selection.__main__()
-
-def selection_fin() :
-    """
-    Fonction lancée après validation des critères
-    """
-    global population
-    #
-    ecran_chargement()
-    fen.update()
-    population.appliquer_criteres()
-    fin_chargement()
-    #
-    menu_intermediaire()
-
-
-## Fonctionnalité : Affichage d'une liste de vins
-
-ecran_parametres = ParametresAffichage(fen)
-def parametres_affichage() :
-    """
-    Fonction "Afficher la population choisie" du menu
-    """
-    global ecran_parametres
-    #
-    reinit_ecran()
-    #
-    disable_all()
-    #
-    ParametresAffichage.fonction_sortie = affichage
-    ecran_parametres.__main__()
-
-def affichage() :
-    """
-    Cette fonction est lancé juste après parametres_affichage.
-    Lance l'affichage de la population sélectionnée
-    """
-    #
-    global population,ecran_affichage,ecran_parametres
-    #
-    menu_affichage.entryconfigure(2, state=NORMAL)
-    #
-    ecran_chargement()
-    fen.update()
-    ecran_affichage = AffichagePopulation(fen,population,ParametresAffichage.variables_affichees)
-    fin_chargement()
-    #
-    AffichagePopulation.fonction_sortie = affichage_fin
-    ecran_affichage.__main__()
-
-
-
-def tri_affichage() :
-    """
-    Cette fonction ne peut être lancée que depuis l'écran d'affichage de la population.
-    Lance la procédure de tri selon une variable.
-    """
-    global ecran_affichage
-    #
-    ecran_affichage.tri()
-
-def affichage_fin() :
-    """
-    Fonction lancée via le bouton Retour de l'écran d'affichage de la population.
-    Renvoie au menu de sélection des fonctionnalités.
-    """
-    menu_intermediaire()
-
-
-## Fonctionnalité : Statistique univariée
-
-def stat_uni() :
-    """
-    Fonction "Lancer une analyse descriptive" du menu
-    """
-    reinit_ecran()
-    #
-    Stat_uni.fonction_sortie = stat_uni_fin
-    Stat_uni(fen).__main__()
-
-def stat_uni_fin() :
-    print("coucou stat uni terminée")
-
+    def __init__(self) :
+        
+        # Initialisation
+        Tk.__init__(self)
+        # Titre
+        self.title("Application")
+        # Dimensions
+        self.geometry("800x550+100+70")
+        # Coleur de fond
+        self.configure(bg='ivory')
+        # Logo
+        os.chdir(emplacement_images)
+        logo = PhotoImage(file='logo.png')
+        self.call('wm', 'iconphoto', self._w, logo)
+        # Barre de menu
+        self.barre_de_menu()
+        
+        # Menu principal
+        
+        texte_titre = "Projet traitement de données\nEnsai - 1ère année"
+        self.label_titre = Label(self, text=texte_titre, background='lightblue',font='Arial 24')
+        
+        texte_noms = "Tanguy Barthélémy, Killian Poullain, Nicolas Sénave"
+        self.label_noms = Label(self, text=texte_noms, background='lightblue',font='Arial 18')
+        
+        # Menu intermédiaire
+        
+        self.texte_population = StringVar()
+        self.label_population = Label(self,textvariable=self.texte_population, background='ivory',font='Arial 12')
+        
+        texte_indication = "Utilisez le menu pour sélectionner l'opération souhaitée.\n\n"
+        texte_indication += "Si vous souhaitez ensuite effectuer une autre action, utilisez le bouton permettant de revenir sur ce menu."
+        self.label_indication = Label(self,text=texte_indication, background='ivory',font='Arial 10')
+        
+        self.bouton_retour = Button(self, text="Retour à l'écran d'accueil",font='Arial 12',command=self.menu_principal)
+        
+        # Ecran de chargement
+        
+        self.etiquette_chargement = Label(self,text="Chargement en cours...",background='ivory',font='Arial 10')
+        
+        # Défintion des fonctions de naviguation des fonctionnalités
+        
+        Selection.fonction_valider = self.selection_fin
+        Selection.fonction_retour = self.menu_principal
+        
+        ParametresAffichage.fonction_sortie = self.affichage
+        
+        AffichagePopulation.fonction_sortie = self.menu_intermediaire
     
-## Fonctionnalité : Test d'indépendance
-
-def test_chi_deux() :
-    """
-    Fonction "Lancer un test d'indépendance" du menu
-    """
-    reinit_ecran()
-    #
-    Test_chi_deux.fonction_sortie = test_chi_deux_fin
-    Test_chi_deux(fen).__main__()
-
-def test_chi_deux_fin() :
-    print("coucou test chi deux terminé")
-
-
-## Fonctionnalité : clustering
-
-def clustering() :
-    """
-    Fonction "Regrouper les vins en classes" du menu
-    """
-    reinit_ecran()
-    #
-    Clustering.fonction_sortie = clustering_fin
-    Clustering(fen).__main__()
-
-def clustering_fin() :
-    print("coucou clustering fin")
-
-
-## Fonctionnalité : Exporter
- 
-def exports() :
-    """
-    Fonction "Exporter la population sélectionnée" du menu
-    """
-    print("coucou exports")
+    ## Barre de menu
     
+    def barre_de_menu(self) :
+        """
+        Crée la barre de menu.
+        """
+        barre_menu = Menu(self)
+        
+        self.menu_select = Menu(barre_menu, tearoff=0)
+        self.menu_select.add_command(label="Travailler sur la base complète", command = self.menu_intermediaire)
+        self.menu_select.add_separator()
+        self.menu_select.add_command(label="Sélectionner une sous-population", command=self.selection)
+        self.menu_select.add_command(label="Modifier les criètres de sélection", command=self.selection)
+        barre_menu.add_cascade(label="Sélection", menu=self.menu_select)
+        
+        self.menu_traitements = Menu(barre_menu, tearoff=0)
+        self.menu_traitements.add_command(label="Lancer une analyse descriptive",command=self.stat_uni)
+        self.menu_traitements.add_separator()
+        self.menu_traitements.add_command(label="Lancer un test d'indépendance",command=self.test_chi_deux)
+        self.menu_traitements.add_separator()
+        self.menu_traitements.add_command(label="Regrouper les vins en classes",command=self.clustering)
+        barre_menu.add_cascade(label="Traitements",menu=self.menu_traitements)
+        
+        self.menu_affichage = Menu(barre_menu, tearoff=0)
+        self.menu_affichage.add_command(label="Afficher la population choisie",command=self.parametres_affichage)
+        self.menu_affichage.add_separator()
+        self.menu_affichage.add_command(label="Trier les vins de la population",command=self.tri_affichage)
+        barre_menu.add_cascade(label="Affichage",menu=self.menu_affichage)
+        
+        self.menu_exporter = Menu(barre_menu, tearoff=0)
+        self.menu_exporter.add_command(label="Exporter la population sélectionnée", command=self.export)
+        barre_menu.add_cascade(label="Exporter", menu=self.menu_exporter)
+        
+        self.config(menu=barre_menu)
+    
+    def enable_traitements(self) :
+        """
+        Active la section "Traitements" de la barre de menu.
+        """
+        self.menu_traitements.entryconfigure(0, state=NORMAL)
+        self.menu_traitements.entryconfigure(2, state=NORMAL)
+        self.menu_traitements.entryconfigure(4, state=NORMAL)
+    
+    def disable_traitements(self) :
+        """
+        Désactive la section "Traitements" de la barre de menu.
+        """
+        self.menu_traitements.entryconfigure(0, state=DISABLED)
+        self.menu_traitements.entryconfigure(2, state=DISABLED)
+        self.menu_traitements.entryconfigure(4, state=DISABLED)
+        
+    def enable_all(self) :
+        """
+        Active toutes les fonctions de la barre de menu.
+        """
+        self.menu_select.entryconfigure(0, state=NORMAL)
+        self.menu_select.entryconfigure(2, state=NORMAL)
+        self.menu_select.entryconfigure(3, state=NORMAL)
+        self.enable_traitements()
+        self.menu_affichage.entryconfigure(0, state=NORMAL)
+        self.menu_affichage.entryconfigure(2, state=NORMAL)
+        self.menu_exporter.entryconfigure(0, state=NORMAL)
+    
+    def disable_all(self) :
+        """
+        Désactive toutes les fonctions de la barre de menu.
+        """
+        self.menu_select.entryconfigure(0, state=DISABLED)
+        self.menu_select.entryconfigure(2, state=DISABLED)
+        self.menu_select.entryconfigure(3, state=DISABLED)
+        self.disable_traitements()
+        self.menu_affichage.entryconfigure(0, state=DISABLED)
+        self.menu_affichage.entryconfigure(2, state=DISABLED)
+        self.menu_exporter.entryconfigure(0, state=DISABLED)
+    
+    ## Menus
+        
+    def menu_principal(self) :
+        """
+        Affiche le menu principal.
+        La population est réinitialisée.
+        Depuis ce menu, on peut choisir la population d'étude.
+        """
+        # Nettoyage de l'écran
+        self.reinit_ecran()
+        # Gestion de la barre de menu
+        self.menu_select.entryconfigure(0, state=NORMAL)
+        self.menu_select.entryconfigure(2, state=NORMAL)
+        self.menu_select.entryconfigure(3, state=DISABLED)
+        self.disable_traitements()
+        self.menu_affichage.entryconfigure(0, state=DISABLED)
+        self.menu_affichage.entryconfigure(2, state=DISABLED)
+        self.menu_exporter.entryconfigure(0, state=DISABLED)
+        # Affichage du menu
+        self.label_titre.pack(expand=True,fill=BOTH)
+        self.label_noms.pack(expand=True,fill=BOTH)
+        # Initialisation de la population
+        self.population = deepcopy(base_vins)
+        # Réinitialisation des variables (qui contiennent les critères)
+        Selection.liste_variables = deepcopy(liste_variables)
+        # Initialisation de l'écran de sélecion des critères
+        self.ecran_selection = Selection(self)
+        # Initialisation de l'écran de sélection des variables affichées
+        self.ecran_parametres = ParametresAffichage(self)
+    
+    def menu_intermediaire(self) :
+        """
+        Affiche le menu intermédiaire.
+        Depuis ce menu, on peut utiliser les autres fonctionnalités.
+        """
+        # Nettoyage de l'écran
+        self.reinit_ecran()
+        # Gestion de la barre de menu
+        self.menu_select.entryconfigure(0, state=DISABLED)
+        self.menu_select.entryconfigure(2, state=DISABLED)
+        self.menu_select.entryconfigure(3, state=NORMAL)
+        self.enable_traitements()
+        self.menu_affichage.entryconfigure(0, state=NORMAL)
+        self.menu_affichage.entryconfigure(2, state=DISABLED)
+        self.menu_exporter.entryconfigure(0, state=NORMAL)
+        # Affichage du menu
+        resume = "La population séléctionnée contient %s vins." %(self.population.nb_vins)
+        self.texte_population.set(resume)
+        self.label_population.pack(expand=True,fill=BOTH)
+        self.label_indication.pack(expand=True,fill=BOTH)
+        self.bouton_retour.pack(side=BOTTOM)
+        
+    def reinit_ecran(self) :
+        """
+        Nettoie l'affichage pour permettre à une fonctionnalité de s'afficher.
+        """
+        # Désafficher le menu principal
+        self.label_titre.forget()
+        self.label_noms.forget()
+        # Désafficher le menu intermédiaire
+        self.label_population.forget()
+        self.label_indication.forget()
+        self.bouton_retour.forget()
+    
+    def ecran_chargement(self) :
+        """
+        Affiche un écran de chargement.
+        """
+        self.etiquette_chargement.pack(expand=True,fill=BOTH)
+    
+    def fin_chargement(self) :
+        """
+        Désaffiche l'écran de chargement.
+        """
+        self.etiquette_chargement.forget()
+    
+    ## Sélection
+    
+    def selection(self) :
+        """
+        Fonctions "Séléctionner une sous-population" 
+        et "Modifier les criètres de sélection" du menu.
+        Lance l'écran de sélection de critères.
+        Si un population a déjà été sélectionnée,
+        permet de revenir à l'écran de sélection des critères.
+        """
+        # Nettoyage de l'écran
+        self.reinit_ecran()
+        # Gestions de la barre de menu
+        self.disable_all()
+        # Lancer la sélection
+        self.ecran_selection.__main__()
 
-## Barre des menus
-
-barre_menu = Menu(fen)
-
-menu_select = Menu(barre_menu, tearoff=0)
-menu_select.add_command(label="Travailler sur la base complète", command = base_complete)
-menu_select.add_separator()
-menu_select.add_command(label="Sélectionner une sous-population", command=selection)
-menu_select.add_command(label="Modifier les criètres de sélection", command=modif_criteres)
-barre_menu.add_cascade(label="Sélection", menu=menu_select)
-
-menu_traitements = Menu(barre_menu, tearoff=0)
-menu_traitements.add_command(label="Lancer une analyse descriptive",command=stat_uni)
-menu_traitements.add_separator()
-menu_traitements.add_command(label="Lancer un test d'indépendance",command=test_chi_deux)
-menu_traitements.add_separator()
-menu_traitements.add_command(label="Regrouper les vins en classes",command=clustering)
-barre_menu.add_cascade(label="Traitements",menu=menu_traitements)
-
-def enable_traitements() :
-    menu_traitements.entryconfigure(0, state=NORMAL)
-    menu_traitements.entryconfigure(2, state=NORMAL)
-    menu_traitements.entryconfigure(4, state=NORMAL)
-
-def disable_traitements() :
-    menu_traitements.entryconfigure(0, state=DISABLED)
-    menu_traitements.entryconfigure(2, state=DISABLED)
-    menu_traitements.entryconfigure(4, state=DISABLED)
-
-menu_affichage = Menu(barre_menu, tearoff=0)
-menu_affichage.add_command(label="Afficher la population choisie",command=parametres_affichage)
-menu_affichage.add_separator()
-menu_affichage.add_command(label="Trier les vins de la population",command=tri_affichage)
-barre_menu.add_cascade(label="Affichage",menu=menu_affichage)
-
-menu_exporter = Menu(barre_menu, tearoff=0)
-menu_exporter.add_command(label="Exporter la population sélectionnée", command=exports)
-barre_menu.add_cascade(label="Exporter", menu=menu_exporter)
-
-def enable_all() :
-    menu_select.entryconfigure(0, state=NORMAL)
-    menu_select.entryconfigure(2, state=NORMAL)
-    menu_select.entryconfigure(3, state=NORMAL)
-    enable_traitements()
-    menu_affichage.entryconfigure(0, state=NORMAL)
-    menu_affichage.entryconfigure(2, state=NORMAL)
-    menu_exporter.entryconfigure(0, state=NORMAL)
-
-def disable_all() :
-    menu_select.entryconfigure(0, state=DISABLED)
-    menu_select.entryconfigure(2, state=DISABLED)
-    menu_select.entryconfigure(3, state=DISABLED)
-    disable_traitements()
-    menu_affichage.entryconfigure(0, state=DISABLED)
-    menu_affichage.entryconfigure(2, state=DISABLED)
-    menu_exporter.entryconfigure(0, state=DISABLED)
-
-fen.config(menu=barre_menu)
-
-# https://www.developpez.net/forums/d1027062/autres-langages/python-zope/gui/tkinter/desactiver-commande-d-barre-menu/
-
+    def selection_fin(self) :
+        """
+        Fonction lancée après validation des critères.
+        Applique les critères sélectionnés sur la population, 
+        et renvoie au menu de sélection des opérations.
+        """
+        # Application des critères sur la population
+        self.ecran_chargement()
+        self.update()
+        self.population.appliquer_criteres()
+        self.fin_chargement()
+        # Affichage du menu intermédiaire
+        self.menu_intermediaire()
+    
+    ## Affichage
+    
+    def parametres_affichage(self) :
+        """
+        Fonction "Afficher la population choisie" du menu.
+        """
+        # Nettoyage de l'écran
+        self.reinit_ecran()
+        # Gestion de la barre de menu
+        self.disable_all()
+        # Lancer le menu de sélection des variables à afficher
+        self.ecran_parametres.__main__()
+    
+    def affichage(self) :
+        """
+        Cette fonction est lancée juste après parametres_affichage.
+        Lance l'affichage de la population sélectionnée.
+        """
+        # Gestion de la barre de menu
+        self.menu_affichage.entryconfigure(2, state=NORMAL)
+        # Initialisation de l'écran d'affichage de la population
+        self.ecran_chargement()
+        self.update()
+        self.ecran_affichage = AffichagePopulation(self,self.population,ParametresAffichage.variables_affichees)
+        self.fin_chargement()
+        # Lancer l'affichage de la population
+        self.ecran_affichage.__main__()
+    
+    def tri_affichage(self) :
+        """
+        Fonction "Trier les vins de la population" du menu.
+        Cette fonction ne peut être lancée que depuis l'écran d'affichage de la population.
+        Lance la procédure de tri selon une variable.
+        """
+        self.ecran_affichage.tri()
+    
+    ## Statistique univariée
+    
+    def stat_uni() :
+        """
+        Fonction "Lancer une analyse descriptive" du menu.
+        """
+        pass
+    
+    ## Test d'indépendance
+    
+    def test_chi_deux() :
+        """
+        Fonction "Lancer un test d'indépendance" du menu.
+        """
+        pass
+    
+    ## Clustering
+    
+    def clustering(self) :
+        """
+        Fonction "Regrouper les vins en classes" du menu.
+        """
+        pass
+    
+    ## Export
+    
+    def export(self) :
+        """
+        Fonction "Exporter la population sélectionnée" du menu.
+        """
+        pass
+    
 
 ## Mainloop
 
-population = deepcopy(base_vins)
-
-menu_principal()
+fen = Application()
+fen.menu_principal()
 fen.mainloop()

@@ -3,11 +3,8 @@
 Application traitement de données
 Module Population
 
-Ce programme définit la classe Population.
-base_vins est un objet de type Population contenant par défaut tous les vins,
-classés par identifiants.
-La méthode appliquer_criteres permet de réduire la population via les critères 
-contenus dans les objets de type Variable de liste_variable (module Selection).
+Ce programme définit la classe Population et définit base_vins.
+La méthode appliquer_criteres permet d'appliquer les critères sélectionnés.
 Des méthodes de tris permettent de trier la population selon une variable.
 
 @Auteurs :
@@ -16,15 +13,16 @@ Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 
 
 from Selection import *
-# Le module copy est importé via Selection
 
-        
+
 class Population :
+    """
+    Un objet de type Population est définit par une liste d'objets de type Vin.
+    """
     
-    def __init__(self,population=[],criteres=None) :
+    def __init__(self,population) :
         """
-        L'argument optionnel population est par défaut une liste vide,
-        sinon une liste d'objets de type Vin
+        L'argument population est une liste d'objets de type Vin.
         """
         self.vins = deepcopy(population)
         self.nb_vins = len(population)
@@ -33,6 +31,10 @@ class Population :
         return self.vins[i]
 
     def appliquer_criteres(self) :
+        """
+        Modifie la liste des vins de sorte que tous les vins remplissant les 
+        critères enregistrés dans la classe Selection.
+        """
         
         self.vins = deepcopy(base_vins.vins)
         self.nb_vins = len(self.vins)
@@ -62,39 +64,41 @@ class Population :
                     else :
                         k += 1
     
-    def tri_croissant(self,variable) :
+    def tri_croissant(self,nom_variable) :
+        """
+        Trie la liste des vins selon une variable dans l'ordre croissant.
+        """
         pass
     
-    def tri_decroissant(self,variable) :
+    def tri_decroissant(self,nom_variable) :
+        """
+        Trie la liste des vins selon une variable dans l'ordre décroissant.
+        """
         pass
 
-    def valeur_min_pop(self,variable) :
+    def valeur_min_pop(self,nom_variable) :
         """
-        Entrée : une sous-population de vins non vide (list)
-        et le nom d'une variable quantitative (str)
         Renvoie le vin ayant la valeur la plus faible sur la variable donnée
-        au sein de la populaton donnée
+        au sein de la population.
         """
         res = self.vins[0]
-        val_min = res[variable]
+        val_min = res[nom_variable]
         for vin in self.vins :
-            val = vin[variable]
+            val = vin[nom_variable]
             if val < val_min :
                 res = vin
                 val_min = val
         return res
     
-    def valeur_max_pop(self,variable) :
+    def valeur_max_pop(self,nom_variable) :
         """
-        Entrée : une sous-population de vins non vide (list)
-        et le nom d'une variable quantitative (str)
         Renvoie le vin ayant la valeur la plus élevée sur la variable donnée 
-        au sein de la population donnée
+        au sein de la population.
         """
         res = self.vins[0]
-        val_max = res[variable]
+        val_max = res[nom_variable]
         for vin in self.vins :
-            val = vin[variable]
+            val = vin[nom_variable]
             if val > val_max :
                 res = vin
                 val_max = val
