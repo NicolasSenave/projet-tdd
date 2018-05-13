@@ -74,6 +74,9 @@ class ParametresAffichage :
         ParametresAffichage.fonction_sortie()
 
 
+class PageIncorrecte(Exception) :
+    pass
+
 class AffichagePopulation :
     """
     Cette classe constitue l'écran d'affichage de la population.
@@ -115,6 +118,7 @@ class AffichagePopulation :
         self.donnees = AffichagePopulation.donnees(population,variables)
         
         # On affiche 50 vins par page
+        # Note : pour l'utilisateur, les numéros sont affichés de 1 à nb_pages+1
         self.page = 0
         if self.population.nb_vins == 0 :
             self.nb_pages = 0
@@ -253,22 +257,44 @@ class AffichagePopulation :
         """
         Affiche la page spécifiée par l'input de l'utilisateur.
         """
-        self.page = int(self.entree_page.get()) - 1
-        self.actualiser_texte_page()
-        # Ici insérer un pop_up d'erreur
-        # si l'utilisateur rentre autre chose qu'un nombre
-        # Insérer ausi un test pour vérifier que la page demandée est valide
-        if self.page == 0 :
-            self.bouton_page_prec.forget()
-            self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
-        elif self.page == self.nb_pages :
-            self.bouton_page_suiv.forget()
-            self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
+        # Récupération de l'input de l'utilisateur
+        entree = self.entree_page.get()
+        
+        # Test de la validité de l'input
+        try :
+            # Conversion de l'entrée en int
+            num_page = int(entree)
+            # On vérifie si le numéro donné est valide
+            if not (1 <= num_page <= self.nb_pages + 1) :
+                raise PageIncorrecte()
+        except ValueError :
+            msg = "Le numéro de page doit être un nombre entier."
+            showwarning("Entrée incorrecte", msg)
+        except PageIncorrecte :
+            msg = "La page demandée n'existe pas."
+            showwarning("Numéro de page invalide", msg)
+        
+        # Mise à jour de l'affichage (si l'input est valide)
         else :
-            self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
-            self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
+            # Enregistrement du numéro de page
+            self.page = num_page - 1
+            # Affichage du numéro de page
+            self.actualiser_texte_page()
+            # Gestion des boutons
+            if self.page == 0 :
+                self.bouton_page_prec.forget()
+                self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
+            elif self.page == self.nb_pages :
+                self.bouton_page_suiv.forget()
+                self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
+            else :
+                self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
+                self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
+            # Affichage du tableau
+            self.afficher_tableau()
+        
+        # Nettoyage de la case
         self.entree_page.delete(0,END)
-        self.afficher_tableau()
     
     def actualiser_texte_page(self):
         """

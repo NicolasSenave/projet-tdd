@@ -17,6 +17,7 @@ import json
 ## Modules nécessaires pour d'autres programmes fils
 
 from tkinter import *
+from tkinter.messagebox import *
 
 from copy import copy,deepcopy
 
