@@ -9,41 +9,17 @@ Ce programme gère l'affichage de la population sélectionnée.
 Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 """
 
-## Notes de tests
-
-# Méthode choisie pour l'affichage :
-# on affiche les vins de la population par groupe de 50,
-# avec possiblité de choisir la "page" qu'on veut afficher via boutons ou entrée du numéro
-# quand on change de page, les éléments de l'ancienne sont détruits
-# inconvénient : si on retourne sur une page, il faut la reconstruire
-# avantage : pas d'accumulation d'objets, et donc de ralentissements, si l'utilisateur regarde plein de pages
-
-# J'ai pas testé l'autre méthode (on garde les pages chargées), on pourrait essayer
-
-# # à enlenver une fois le module terminé
-# import os
-# 
-# emplacement = 'D:\\Documents\\Application'
-# emplacement_modules = emplacement + '\\Modules'
-# os.chdir(emplacement_modules)
-# #
-
-
 
 from Population import *
-# tkinter est importé via Selection, importé dans Population
-
-
-# # à enlenver une fois le module terminé
-# fen = Tk()
-# fen.geometry("800x500+100+100")
-# population_test = Population(base_vins_objets[0:311])
-# from copy import copy
-# variables_test = copy(liste_noms_variables)
-# #
 
 
 class ParametresAffichage :
+    """
+    Cette classe contient constitue le menu de sélection des variables que 
+    l'utilisateur souhaite afficher.
+    La variable statique variables_affichees contient les noms de variables 
+    retenues par l'utilisateur.
+    """
     
     variables_affichees = copy(liste_noms_variables)
     
@@ -63,6 +39,12 @@ class ParametresAffichage :
         self.bouton_valider = Button(fen, text="Valider",font='Arial 12', command=self.fin)
     
     def actualiser_parametres(self) :
+        """
+        Cette méthode est appelée dans la méthode fin de cette classe.
+        Elle modifie l'attribut statique variables_affichees.
+        Si la case correspondant à la variable est cochée, elle est conservée, 
+        sinon elle est retirée.
+        """
         ParametresAffichage.variables_affichees = copy(liste_noms_variables)
         for nom_variable in self.vars_variables :
             var = self.vars_variables[nom_variable]
@@ -76,16 +58,26 @@ class ParametresAffichage :
         self.bouton_valider.pack()
     
     def fin(self) :
+        """
+        Enregistre les paramètres d'affichage souhaités par l'utilisateur,
+        puis désaffiche l'écran de sélection des variables à afficher,
+        et renvoie à l'écran d'affichage de la population.
+        """
+        #
         self.actualiser_parametres()
         #
         self.etiquette.forget()
         for case in self.cases_variables :
             case.forget()
         self.bouton_valider.forget()
+        #
         ParametresAffichage.fonction_sortie()
 
 
 class AffichagePopulation :
+    """
+    Cette classe constitue l'écran d'affichage de la population.
+    """
     
     fonction_sortie = None
     
@@ -93,7 +85,7 @@ class AffichagePopulation :
         """
         Méthode statique de la classe AffichagePopulation
         Construit le tableau dont les éléments sont de type str, avec 
-        en ligne les vins et en colonne les variables retenues pour l'affichage
+        en ligne les vins et en colonne les variables retenues pour l'affichage.
         """
         res = []
         # Sur la première ligne on affiche le nom des variables
@@ -159,8 +151,8 @@ class AffichagePopulation :
         # Création du tableau (frame), dans le canevas, qui contient les cellules (labels) 
         self.tableau = Frame(self.canvas,background='ivory')
         
-        # Création des cellules
-        self.creer_cellules()
+        # Affichage du tableau dans le canevas
+        self.afficher_tableau()
         
         # Pack du canevas 
         self.canvas.grid(row=0,column=0,sticky=N+S+E+W)
@@ -207,7 +199,10 @@ class AffichagePopulation :
         self.bouton_annuler = Button(self.fenetre, text="Annuler",font='Arial 12', command=self.annuler_tri)
         
     
-    def creer_cellules(self) :
+    def afficher_tableau(self) :
+        """
+        Crée les cellules de la page courante et les affiche.
+        """
         # On vide le tableau (frame)
         for cellule in self.tableau.winfo_children() :
             cellule.destroy()
@@ -231,24 +226,33 @@ class AffichagePopulation :
                     cellule.grid(row=i,column=j,sticky=NW)
     
     def page_suivante(self) :
+        """
+        Affiche la page suivante.
+        """
         if self.page == 0 :
             self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
         self.page += 1
         if self.page == self.nb_pages :
             self.bouton_page_suiv.forget()
         self.actualiser_texte_page()
-        self.creer_cellules()
+        self.afficher_tableau()
     
     def page_precedente(self) :
+        """
+        Affiche la page précédente.
+        """
         if self.page == self.nb_pages :
             self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
         self.page -= 1
         if self.page == 0 :
             self.bouton_page_prec.forget()
         self.actualiser_texte_page()
-        self.creer_cellules()
+        self.afficher_tableau()
     
     def choix_page(self,evenement=None) :
+        """
+        Affiche la page spécifiée par l'input de l'utilisateur.
+        """
         self.page = int(self.entree_page.get()) - 1
         self.actualiser_texte_page()
         # Ici insérer un pop_up d'erreur
@@ -264,15 +268,18 @@ class AffichagePopulation :
             self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
             self.bouton_page_prec.pack(side=BOTTOM,anchor=W)
         self.entree_page.delete(0,END)
-        self.creer_cellules()
+        self.afficher_tableau()
     
     def actualiser_texte_page(self):
+        """
+        Met à jour le numéro de la page pour correspondre à la page affichée.
+        """
         self.texte_page.set( "Page %s sur %s" %(self.page+1,self.nb_pages+1) )
     
     def deplacement_molette(self,evenement):
         """
         Fonction permettant de lier le déplacement de la fenêtre avec 
-        la molette de la souris 
+        la molette de la souris.
         """ 
         if evenement.delta > 0 : 
             self.canvas.yview_scroll(-2,'units') 
@@ -303,6 +310,11 @@ class AffichagePopulation :
         self.bouton_page_suiv.pack(side=BOTTOM,anchor=E)
     
     def tri(self) :
+        """
+        Cette fonction désaffiche temporairement le tableau, 
+        puis affiche le menu permettant à l'utilisateur de choisir 
+        la variable et le type de tri.
+        """
         # Nettoyage de l'écran
         self.cadre.forget()
         self.label_pages.forget()
@@ -319,14 +331,13 @@ class AffichagePopulation :
         self.bouton_tri_croissant.pack(side=BOTTOM)
     
     def choix_variable_tri(self,evenement) :
+        """
+        Déplace le curseur suite à un input de l'utilisateur.
+        """
         
         touche = evenement.keysym
         
         if touche == "Down" :
-            
-            # if self.curseur == None :
-            #     self.curseur = 0
-            #     self.labels_variables[0].configure(background='lightblue')
             
             if self.curseur < self.nb_variables - 1 :
                 self.labels_variables[self.curseur].configure(background='ivory')
@@ -340,10 +351,6 @@ class AffichagePopulation :
             
         elif touche == "Up" :
             
-            # if self.curseur == None :
-            #     self.curseur = self.nb_variables - 1
-            #     self.labels_variables[self.nb_variables - 1].configure(background='lightblue')
-            
             if self.curseur > 0 :
                 self.labels_variables[self.curseur].configure(background='ivory')
                 self.curseur -= 1
@@ -355,6 +362,11 @@ class AffichagePopulation :
                 self.labels_variables[self.nb_variables - 1].configure(background='lightblue')
     
     def valider_tri_croissant(self) :
+        """
+        Désaffiche le menu de tri,
+        applique le tri demandé par l'utilisateur,
+        puis réaffiche le tableau à la première page.
+        """
         #
         self.label_tri.forget()
         self.canvas_variables.forget()
@@ -367,11 +379,16 @@ class AffichagePopulation :
         #
         self.page = 0
         self.actualiser_texte_page()
-        self.creer_cellules()
+        self.afficher_tableau()
         #
         self.__main__()
     
     def valider_tri_decroissant(self) :
+        """
+        Désaffiche le menu de tri,
+        applique le tri demandé par l'utilisateur,
+        puis réaffiche le tableau à la première page.
+        """
         #
         self.label_tri.forget()
         self.canvas_variables.forget()
@@ -384,11 +401,15 @@ class AffichagePopulation :
         #
         self.page = 0
         self.actualiser_texte_page()
-        self.creer_cellules()
+        self.afficher_tableau()
         #
         self.__main__()
     
     def annuler_tri(self) :
+        """
+        Désaffiche le menu de tri, 
+        puis réaffiche le tableau.
+        """
         #
         self.label_tri.forget()
         self.canvas_variables.forget()
@@ -399,6 +420,10 @@ class AffichagePopulation :
         self.__main__()
     
     def fin(self) :
+        """
+        Désaffiche l'écran d'affichage de la population,  
+        et renvoie au menu de sélection des opérations.
+        """
         #
         self.cadre.forget()
         #
@@ -409,12 +434,3 @@ class AffichagePopulation :
         self.bouton_retour.forget()
         #
         AffichagePopulation.fonction_sortie()
-        
-
-# #
-# def f() : pass
-# AffichagePopulation.fonction_sortie = f
-# AffichagePopulation(fen,population_test,variables_test).__main__()
-# fen.mainloop()
-# #
-

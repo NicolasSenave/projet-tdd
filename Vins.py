@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Application traitement de données
-Module Variables
+Module Vins
 
-Ce programme définit la classe Vin et génère la liste des vins 
+Ce programme définit la classe Vin et génère une liste des vins.
 
 @Auteurs :
 Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
@@ -12,8 +12,6 @@ Tanguy BARTHÉLÉMY, Killian POULAIN, Nicolas SÉNAVE
 
 from Data import *
 
-
-## Définition de la classe Vin
 
 class Vin :
     
@@ -58,7 +56,3 @@ class Vin :
         return self.id == vin.id
 
 base_vins_objets = [Vin(vin) for vin in base_vins_dicos]
-
-def afficher_vins(n0,n) :
-    for k in range (n0,n) :
-        print(base_vins_objets[k])
