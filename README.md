@@ -13,9 +13,11 @@ Présentation :        https://www.overleaf.com/16027254zkkgffdjzttd
 
 # Rappel pour faire fonctionner l'application :
 
+Vous pouvez télécharger le fichier Application v1.zip qui fonctionne directement (une fois dézippé bien sûr).
+
 Dans un même répertoire, mettez le fichier Application.py, et des dossiers nommés Données, Modules et Images
 
-Dans le fichier Application.py, il faut bien sûr remplacer emplacement = 'D:\\Documents\\Application' par emplacement = os.getcwd() ou emplacement = 'le chemin où vous avec mis le programme et les dossiers'.
+Dans le fichier Application.py, il faut remplacer emplacement = 'D:\\Documents\\Application' par emplacement = os.getcwd() ou emplacement = 'le chemin où vous avec mis le programme et les dossiers'.
 
 Le dossier Données doit contenir le fichier .json
 
