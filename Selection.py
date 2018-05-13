@@ -105,6 +105,9 @@ class Variable :
 liste_variables = [Variable(nom) for nom in liste_noms_variables]
 
 
+class ErreurCritereQuanti(Exception) :
+    pass
+
 class AffichageVariable :
     """
     Les objets de type AffichageVariables permet de visualiser et de modifier 
@@ -187,11 +190,33 @@ class AffichageVariable :
         Pour une variable quantitative, met à jour le critère de sélection 
         via l'input de l'utilisateur.
         """
-        self.variable.critere_min = float(self.entree_min.get())
-        # Ici insérer un pop_up d'erreur
-        # si l'utilisateur rentre autre chose qu'un nombre
-        # Insérer ausi un test pour vérifier que le min est plus petit que le max
+        # Récupération de l'input de l'utilisateur
+        entree = self.entree_min.get()
+        # Si l'utilisateur utilise une virgule, on la remplace par un point
+        entree = entree.replace(',' , '.')
+        
+        # Test de la validité de l'input
+        try :
+            # Conversion de l'entrée en float
+            borne_inf = float(entree)
+            # Vérification borne_inf <= borne_sup
+            borne_sup = self.variable.critere_max
+            if borne_inf > borne_sup :
+                raise ErreurCritereQuanti()
+        except ValueError :
+            msg = "La borne doit être un nombre."
+            showwarning("Entrée incorrecte", msg)
+        except ErreurCritereQuanti :
+            msg = "La borne inférieure donnée dépasse la borne supérieure."
+            showwarning("Critère invalide", msg)
+        
+        # Enregistrement du critère (s'il est valide)
+        else :
+            self.variable.critere_min = borne_inf
+        
+        # Nettoyage de la case
         self.entree_min.delete(0,END)
+        # Mise à jour et affichage du critère
         self.actualiser_critere_quanti()
     
     def appliquer_critere_max(self,evenement=None) :
@@ -199,9 +224,33 @@ class AffichageVariable :
         Pour une variable quantitative, met à jour le critère de sélection 
         via l'input de l'utilisateur.
         """
-        self.variable.critere_max = float(self.entree_max.get())
-        # idem cf appliquer_critere_min
+        # Récupération de l'input de l'utilisateur
+        entree = self.entree_max.get()
+        # Si l'utilisateur utilise la virgule, on la remplace par un point
+        entree = entree.replace(',' , '.')
+        
+        # Test de la validité de l'input
+        try :
+            # Conversion de l'entrée en float
+            borne_sup = float(entree)
+            # Vérification borne_sup >= borne_inf
+            borne_inf = self.variable.critere_min
+            if borne_sup < borne_inf :
+                raise ErreurCritereQuanti()
+        except ValueError :
+            msg = "La borne doit être un nombre."
+            showwarning("Entrée incorrecte", msg)
+        except ErreurCritereQuanti :
+            msg = "La borne supérieure donnée est en dessous de la borne inférieure."
+            showwarning("Critère invalide", msg)
+        
+        # Enregistrement du critère (s'il est valide)
+        else :
+            self.variable.critere_max = borne_sup
+        
+        # Nettoyage de la case
         self.entree_max.delete(0,END)
+        # Mise à jour et affichage du critère
         self.actualiser_critere_quanti()
     
     def actualiser_critere_quanti(self,evenement=None) :
@@ -211,7 +260,10 @@ class AffichageVariable :
         borne_inf = self.variable.critere_min
         borne_sup = self.variable.critere_max
         texte_critere = "Intervalle des valeurs retenues pour cette variable :\n"
-        texte_critere += "[ %s , %s ]" %(borne_inf,borne_sup)
+        if borne_inf != borne_sup :
+            texte_critere += "[ %s , %s ]" %(borne_inf,borne_sup)
+        else :
+            texte_critere += "valeur = %s" %(borne_inf)
         self.texte_critere.set(texte_critere)
         self.label_critere.update()
 
@@ -258,8 +310,8 @@ class Selection :
     
     def __init__(self,fen) :
         #
-        texte_indication = "Cliquez avec la souris ou utilisez les flèches du clavier "
-        texte_indication += "pour voir les critères appliqués sur les variables.\n\n"
+        texte_indication = "Cliquez avec la souris ou utilisez les flèches du clavier \n"
+        texte_indication += "pour voir ou modifier les critères appliqués sur les variables.\n\n"
         self.etiquette = Label(fen, text=texte_indication,font='Arial 12',bg='ivory',justify=LEFT)
         # Problème avec ça : actuellement les critères s'appliquent une fois la sélection terminée
         # self.texte_nb_vins = StringVar()
