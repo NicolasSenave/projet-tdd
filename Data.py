@@ -22,6 +22,17 @@ from tkinter.filedialog import *
 from xlwt import Workbook
 
 from copy import copy,deepcopy
+from random import randrange
+
+import matplotlib.pyplot as plt
+from numpy import sqrt
+
+def rgb_to_hex(rgb):
+    """
+    Entrée : un triplet RGB
+    Renvoie la couleur en héxadécimales (str)
+    """
+    return '#%02x%02x%02x' % rgb
 
 
 ## Définition de répertoire des données
@@ -31,6 +42,7 @@ import os
 emplacement_modules = os.getcwd()
 
 emplacement_donnees = emplacement_modules[ : -len('Modules')] + 'Données\\'
+
 
 ## Importation des données
 

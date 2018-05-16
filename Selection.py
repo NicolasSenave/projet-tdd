@@ -88,6 +88,7 @@ class Variable :
             self.critere_max = self.val_max
         else :
             self.modalites = Variable.liste_modalites(nom_variable)
+            self.nb_modalites = len(self.modalites)
             self.critere_modalites = deepcopy(self.modalites)
     
     def __repr__(self) :
@@ -102,7 +103,16 @@ class Variable :
         """
         return Variable(self.nom)
 
-liste_variables = [Variable(nom) for nom in liste_noms_variables]
+def creer_variables() :
+    dico,liste = {},[]
+    for nom_variable in liste_noms_variables :
+        variable = Variable(nom_variable)
+        dico[nom_variable] = variable
+        liste.append(variable)
+    return dico,liste
+
+dico_variables,liste_variables = creer_variables()
+
 
 
 class ErreurCritereQuanti(Exception) :

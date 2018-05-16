@@ -57,10 +57,10 @@ class Application(Tk) :
         
         # Menu principal
         
-        texte_titre = "Projet traitement de données\nEnsai - 1ère année"
+        texte_titre = "Projet traitement de données\n\nEnsai - 1ère année"
         self.label_titre = Label(self, text=texte_titre, background='lightblue',font='Arial 24')
         
-        texte_noms = "Tanguy Barthélémy, Killian Poullain, Nicolas Sénave"
+        texte_noms = "Tanguy Barthélémy, Killian Poulain, Nicolas Sénave"
         self.label_noms = Label(self, text=texte_noms, background='lightblue',font='Arial 18')
         
         # Menu intermédiaire
@@ -86,6 +86,10 @@ class Application(Tk) :
         ParametresAffichage.fonction_sortie = self.affichage
         
         AffichagePopulation.fonction_sortie = self.menu_intermediaire
+        
+        AffichageUnivariee.fonction_chargement = self.stat_uni_resultats
+        AffichageUnivariee.fonction_sortie = self.menu_intermediaire
+        
     
     ## Barre de menu
     
@@ -103,7 +107,7 @@ class Application(Tk) :
         barre_menu.add_cascade(label="Sélection", menu=self.menu_select)
         
         self.menu_traitements = Menu(barre_menu, tearoff=0)
-        self.menu_traitements.add_command(label="Lancer une analyse descriptive",command=self.stat_uni)
+        self.menu_traitements.add_command(label="Lancer une analyse descriptive",command=self.stat_uni_choix_variable)
         self.menu_traitements.add_separator()
         self.menu_traitements.add_command(label="Lancer un test d'indépendance",command=self.test_chi_deux)
         self.menu_traitements.add_separator()
@@ -308,15 +312,35 @@ class Application(Tk) :
     
     ## Statistique univariée
     
-    def stat_uni() :
+    def stat_uni_choix_variable(self) :
         """
         Fonction "Lancer une analyse descriptive" du menu.
+        L'utilisateur choisit la variable à étudier.
         """
-        pass
+        # Nettoyage de l'écran
+        self.reinit_ecran()
+        # Gestion de la barre de menu
+        self.disable_all()
+        # Menu de statistique univariée
+        self.ecran_univariee = AffichageUnivariee(self,self.population)
+        self.ecran_univariee.menu_choix_variable()
+    
+    def stat_uni_resultats(self) :
+        """
+        Fonction lancée après stat_uni_choix_variable.
+        Affiche les résultats.
+        """
+        # Calculs
+        self.ecran_chargement()
+        self.update()
+        self.ecran_univariee.calculs()
+        self.fin_chargement()
+        # Affichage des résultats
+        self.ecran_univariee.affichage_resultats()
     
     ## Test d'indépendance
     
-    def test_chi_deux() :
+    def test_chi_deux(self) :
         """
         Fonction "Lancer un test d'indépendance" du menu.
         """
