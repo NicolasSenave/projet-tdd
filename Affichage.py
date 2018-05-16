@@ -413,6 +413,7 @@ class AffichagePopulation :
         #
         variable_tri = ParametresAffichage.variables_affichees[self.curseur]
         self.population.tri_croissant(variable_tri)
+        self.donnees = AffichagePopulation.donnees(self.population,self.variables_affichees)
         #
         self.page = 0
         self.actualiser_texte_page()
@@ -435,6 +436,7 @@ class AffichagePopulation :
         #
         variable_tri = ParametresAffichage.variables_affichees[self.curseur]
         self.population.tri_decroissant(variable_tri)
+        self.donnees = AffichagePopulation.donnees(self.population,self.variables_affichees)
         #
         self.page = 0
         self.actualiser_texte_page()
